@@ -86,6 +86,8 @@ Good examples of descriptive names are "Bedroom window sensor", "Living room mot
 In this step you will be editing HA yaml files.
   1. [configuration.yaml](configuration.yaml) - set up tts source, sensor: time_date formatting, and two alarm_control_panels (intrusion and fire/carbon monoxide)
   
+	 alarm_control_panel: set up two 'manual' automatons for Lovelace Cards and Automations.
+
      tts: inform HA which source to use for talking though sonos
 	
     	- platform: google_translate # we will be using google
@@ -93,8 +95,6 @@ In this step you will be editing HA yaml files.
 	 sensor: activate a built in HA sensors
 
        - platform: time_date # useful for formating timestamp notifications
-
-	 alarm_control_panel: set up two 'manual' automatons for Lovelace Cards and Automations.
 	 
   2. [groups.yaml](groups.yaml) - set up three sensor groups and two people notification groups.
 
@@ -113,7 +113,9 @@ In this step you will be editing HA yaml files.
 
      sonos_say: # script to enable TTS sonos to function.
 
-## Step 4 - The more you know......
+## Step 4 - The more you know......[configuration.yaml](configuration.yaml)
+
+<b>alarm_control_panel</b>
 
 In this step we will clarify what Home Assistant's "manual alarm control panel" is and what it is not.
 
@@ -137,12 +139,7 @@ You might be surprised by my example creating not one but two panels: one for in
 
 I recommend two distinct panels because you want them to behave differently. Specifically, you may want to arm/disarm the home intrusion alarm automatically according to presence in the house, whereas fire/CO detection should always active (except for exceptional circumstances like maintenance or incident investigation).
 
-
-
-You do so by editing your `configuration.yaml` file. 
-
-
-Here are the lines I added in my [configuration.yaml](configuration.yaml):
+The portion of the [configuration.yaml](configuration.yaml) for the alarm panel is this:
 
 ```
 alarm_control_panel:
@@ -180,9 +177,11 @@ You can always come back and tweak these setting later, including setting a code
 If you choose to set up a code, the alarm card in the UI will present you with a numeric keyboard to type that code. If you do not, the UI will hide that keyboard.
 
 
-## Step 4 - define sensor groups
+## ## Step 5 - The more you know......about [groups.yaml](groups.yaml)
 
-In this step you aggregate your sensors in meaningful groups, creating as many as necessary, with special attention to groups that you don't want to trigger the alarm when you are home at night, and sensors you always want to trigger a response if the alarm is armed.
+Sensor Groups:
+
+Aggregate your sensors in meaningful groups, creating as many as necessary, with special attention to groups that you don't want to trigger the alarm when you are home at night, and sensors you always want to trigger a response if the alarm is armed.
 
 In my example, I group motion sensors together, door sensors together, and window sensors together.
 
@@ -190,11 +189,17 @@ The main purpose of this step is to simplify trigger rules and sensor testing. T
 
 Even if you don't care about grouping sensors by type, it's still useful to create at least one group where they all belong: this makes it easier for you write trigger automations.
 
-You do this by adding to your `groups.yaml` file the contents in [sensor-groups.yaml](sensor-groups.yaml).
-(Remove the original `[]` contents, if that's all you have in that file.)
+
+People Groups:
+
+I defined two people notification groups;.
+
+1. people_admins: This group will receive text notifications when alarm is armed, disarmed, etc. For my use its the parents.
+
+2. people_intrusion: This group will receive text notifications when alarm is triggered and there is an intrusion in progress. For my use it parents and kids, GET OUT OF THE HOUSE AND CALL POLICE!
 
 
-## Step 5 - user interface
+## Step 6 - user interface Cards
 
 In this step you add the alarm user interface cards to HA's Lovelace dashboards.
 
@@ -213,13 +218,13 @@ For illustration purposes, here is my security dashboard at the end of this step
 
 
 
-## Step 6 - walkaround
+## Step 7 - walkaround
 
 Do a walkaround of the house, with your phone in your hand, explicitly triggering all sensors one by one and verifying that each of them behaves as desired.
 
 Finally, trigger the buzzers manually and trigger the siren manually, verifying they behave as desired.
 
-## Step 7 - core automations
+## Step 8 - core automations
 
 In this step you will create automations (alarm triggers and responses) that perform those functions you would expect a traditional, keypad based, 1990s, "dumb" intrusion alarm system to perform: arm, disarm, trigger, sound the siren, send you notifications.
 
