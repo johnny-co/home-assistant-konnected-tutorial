@@ -1,0 +1,17 @@
+motion_sensors:
+  name: Motion Sensors
+  icon: hass:walk
+  entities:
+    - binary_sensor.living_room_motion
+door_sensors:
+  name: Door Sensors
+  icon: hass:door
+  entities:
+    - binary_sensor.front_door
+    - binary_sensor.laundry_back_door
+    - binary_sensor.back_sliding_door
+window_sensors:
+  name: Window Sensors
+  icon: hass:window-closed
+  entities:
+    - binary_sensor.living_room_windows
