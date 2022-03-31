@@ -1,0 +1,29 @@
+# Migrate these to your configuration.yaml for Konnected.io
+default_config:
+
+# These should already be in there from default set up, make sure
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+
+# Text to speech platform to use
+tts:
+  - platform: google_translate
+
+# Konnected.io Alarm Panel Settings
+alarm_control_panel:
+  - platform: manual
+    name: Home Alarm
+    arming_time: 15
+    delay_time: 30
+    trigger_time: 180
+    disarmed:
+      trigger_time: 0
+    armed_home:
+      arming_time: 0
+      delay_time: 0
+  - platform: manual
+    name: Fire and CO Alarm
+    arming_time: 0
+    delay_time: 0
+    trigger_time: 180
