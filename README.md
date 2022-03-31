@@ -85,10 +85,10 @@ Good examples of descriptive names are "Bedroom window sensor", "Living room mot
 In this step you will be editing HA yaml files.
   1. [configuration.yaml](configuration.yaml) - set up tts source, sensor: time_date formatting, and two alarm_control_panels (intrusion and fire/carbon monoxide)
      tts: inform HA which source to use for talking though sonos
-	   - platform: google_translate # we will be using google
-	 sensor: activate a built in HA sensors
-       - platform: time_date # useful for formating timestamp notifications
-	 alarm_control_panel: set up two 'manual' automatons for Lovelace Cards and Automations.
+	- platform: google_translate # we will be using google
+     sensor: activate a built in HA sensors
+	- platform: time_date # useful for formating timestamp notifications
+     alarm_control_panel: set up two 'manual' automatons for Lovelace Cards and Automations.
 	 
   2. [groups.yaml](groups.yaml) - set up three sensor groups and two people notification groups.
      motion_sensors: # all motion sensor types
