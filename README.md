@@ -23,7 +23,7 @@ There are additional add-ons and integrations that should be installed, configur
 1. Set Home Assistant to a static IP, this will help resolve an issue with a Konnected bug below.
 2. Home Assistant Cloud (Nabu Casa) or Add-ons/Duck DNS - Enables remote access to HA which is important to arming the alarm away from home.
     - How to https://www.youtube.com/watch?v=AK5E2T5tWyM
-3. Add-ons/Studio Code Server - Tool to easily modify configuration.yaml, scripts.yaml, groups.yaml, automations.yaml, etc.
+3. Add-ons/Studio Code Server - Tool to easily modify configuration.yaml, scripts.yaml, groups.yaml, etc.
 4. Integrations/Sonos (Optional) - Uses Sonos TTS to give verbal warnings, eg. 'Disarm before alarm sounds', 'House Armed', etc.
 
 ## Step 1 - configure the boards
@@ -69,7 +69,8 @@ Do it by clicking "Options" on the card associated with each board. This is a ra
 - Configure Misc (Last screen in HA/Konnected configuration):
 	Check ON 'Override default Home Assistant API host panel URL'
     On Override API Host URL, enter HA's static IP with Port (eg http://192.168.1.15:8123)
-		* This is to avoid a bug that causes Konnected to get stuck in an infinate reboot loop if using Nabu Casa in some cases.
+	* This is to avoid a bug that causes Konnected to get stuck in an infinate reboot loop if using Nabu Casa in some cases.
+
 Even if it takes extra time, choose good, descriptive names for the zones now, as opposed to choosing poor names that you'll come back to revise later. Home Assistant will create entity names based on your descriptive names. Doing things right the first time will save you time in the end.
 
 Good examples of descriptive names are "Bedroom window sensor", "Living room motion sensor" and "Boiler room CO detector".
