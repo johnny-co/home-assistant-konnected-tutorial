@@ -65,8 +65,9 @@ Do it by clicking "Options" on the card associated with each board. This is a ra
 - For consistancy in the automations below, use the following names:
 	ALARM1 - Name: Siren, and recomended additional settings Output: High, Pulse: 24, Pause: 54, Repeat: -1
 	OUT1 - Name Buzzer, and recomended additional settings Output: High, Pulse: 24, Pause: 54, Repeat: -1
+
 - Configure Misc (Last screen in HA/Konnected configuration):
-	Check ON 'Override default Home Assistant API host panel URL'
+	Checked ON 'Override default Home Assistant API host panel URL'
     On Override API Host URL, enter HA's static IP with Port (eg http://192.168.1.15:8123)
 	* This is to avoid a bug that causes Konnected to get stuck in an infinate reboot loop if using Nabu Casa in some cases.
 
