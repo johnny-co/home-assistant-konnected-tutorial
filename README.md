@@ -17,6 +17,15 @@ All feedback is welcome, but I'll make corrections only workload and family perm
 ## Acknowledgments 
 Many thanks to @johnny-co for his help in testing and fixing my typos.
 
+## Step 0 - Prerequisites
+There are additional add-ons and integrations that should be installed, configured, tested and running prior to tackling Konnected.
+
+1. Set Home Assistant to a static IP, this will help resolve an issue with a Konnected bug below.
+2. Home Assistant Cloud (Nabu Casa) or Add-ons/Duck DNS - Enables remote access to HA which is important to arming the alarm away from home.
+    - How to https://www.youtube.com/watch?v=AK5E2T5tWyM
+3. Add-ons/Studio Code Server - Tool to easily modify configuration.yaml, scripts.yaml, groups.yaml, automations.yaml, etc.
+4. Integrations/Sonos (Optional) - Uses Sonos TTS to give verbal warnings, eg. 'Disarm before alarm sounds', 'House Armed', etc.
+
 ## Step 1 - configure the boards
 
 Start configuring the Konnected boards from the Konnected mobile phone app including inclusion into your home wi-fi network. While this step is pretty straightforward and already documented plenty elsewhere, there is one important caveat that has to do with your phone's OS.
@@ -36,14 +45,15 @@ Stay connected? [No] [Yes]
 You must select the checkbox "Don't ask again for this network" and tap "Yes". 
 Failing to do so might well cause your Android phone to revert automatically to your home network (without warning), thus preventing communication with the Konnected board.
 
-You now have the options to configure Zones and Sensors in the Konnected app. You only need to do so if you plan to register your board with the Konnected Cloud, which is only necessary if you plan to integrate it into Samsung's SmartThings.
+You now have the options to configure Zones and Sensors in the Konnected app. You ONLY need to do so if you plan to register your board with the ST/Konnected Cloud, which is only necessary if you plan to integrate it into Samsung's SmartThings.
 
 The decision is up to you: the device can be operated in the SmartThings and Home Assistant ecosystems concurrently. If you choose to do so, consider taking a screenshot of your configuration page, in order to ensure it is consistent with the Home Assistant configuration you will specify in the next step.
 
-
 ## Step 2 - integration
 
-A. Configure the Konnected integration.
+Configure the Konnected integration.
+
+* Prior to adding konnected integration to HA, it is recommended to configure konnected.io to a static IP.
 
 Start this process in the Home Assistant UI by selecting "Configuration", then "Integrations", then "Konnected.io". 
 After you provide your Konnected username and password, HomeAssistant must create one device for each board you have.
@@ -52,16 +62,17 @@ At this point you need to configure *once again* your zones inside Home Assistan
 (For the avoidance of doubt, I use the word *zone* as a synonym for sensor, as Konnected.io documentation does. This is a disjoint concept from Home Assistant's Zones, that are basically geofencing areas designed to track people's presence.)  
 
 Do it by clicking "Options" on the card associated with each board. This is a rather laborious process: you'll be presented with two pages to configure zones 1-6 and 7-12 (plus outputs), followed by as many additional pages as the zones you enabled. It is at this moment that the screenshot you took in the previous step comes in handy.
-
+- For consistancy in the automations below, use the following names:
+	ALARM1 - Name: Siren, and recomended additional settings Output: High, Pulse: 24, Pause: 54, Repeat: -1
+	OUT1 - Name Buzzer, and recomended additional settings Output: High, Pulse: 24, Pause: 54, Repeat: -1
+- Configure Misc (Last screen in HA/Konnected configuration):
+	Check ON 'Override default Home Assistant API host panel URL'
+    On Override API Host URL, enter HA's static IP with Port (eg http://192.168.1.15:8123)
+		* This is to avoid a bug that causes Konnected to get stuck in an infinate reboot loop if using Nabu Casa in some cases.
 Even if it takes extra time, choose good, descriptive names for the zones now, as opposed to choosing poor names that you'll come back to revise later. Home Assistant will create entity names based on your descriptive names. Doing things right the first time will save you time in the end.
 
 Good examples of descriptive names are "Bedroom window sensor", "Living room motion sensor" and "Boiler room CO detector".
 
-B. Configure additional (optional) support systems
-Studio Code Server - Tool to easily modify configuration.yaml, scripts.yaml, groups.yaml, automations.yaml, etc.
-	- Install via Configuration / Add-ons
-	
-Sonos - Use Sonos TTS to give verbal warnings, eg. 'Disarm before alarm sounds', 'House Armed', etc.
 
 ## Step 3 - create the alarm automaton
 
@@ -89,7 +100,7 @@ You might be surprised by my example creating not one but two panels: one for in
 
 I recommend two distinct panels because you want them to behave differently. Specifically, you may want to arm/disarm the home intrusion alarm automatically according to presence in the house, whereas fire/CO detection should always active (except for exceptional circumstances like maintenance or incident investigation).
 
-Here are the lines I added in my `configuration.yaml`:
+Here are the lines I added in my [configuration.yaml](configuration.yaml):
 
 ```
 alarm_control_panel:
@@ -98,6 +109,11 @@ alarm_control_panel:
     arming_time: 15
     delay_time: 30
     trigger_time: 180
+    disarmed:
+      trigger_time: 0
+    armed_home:
+      arming_time: 0
+      delay_time: 0
   - platform: manual
     name: Fire and CO Alarm
     arming_time: 0
@@ -110,6 +126,9 @@ Relevant configuration options are as follows:
 * `delay_time` is the time you have to disarm the alarm once you come back in the house and trip a sensor, before the alarm triggers
 * `trigger_time` is how long your siren will sound (or equivalent trigger action will last) once the alarm triggers
 
+* disarmed specific trigger_time: 0 disables the alarm when disarmed
+* armed_home/arming_time and delay_time both 0 since you are home and no need to delay arming
+ 
 Contrary to most examples you find on the internet, I chose *not* to set up an arming/disarming code. 
 Consider requiring a code if you have wall-mounted tablets in the house, to prevent burglars from disarming the system with a simple tap. 
 Otherwise, rather focus on fortifying security at the app/website login point, e.g., enabling encryption (https).
