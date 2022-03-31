@@ -64,6 +64,7 @@ At this point you need to configure *once again* your zones inside Home Assistan
 Do it by clicking "Options" on the card associated with each board. This is a rather laborious process: you'll be presented with two pages to configure zones 1-6 and 7-12 (plus outputs), followed by as many additional pages as the zones you enabled. It is at this moment that the screenshot you took in the previous step comes in handy.
 - For consistancy in the automations below, use the following names:
 	ALARM1 - Name: Siren, and recomended additional settings Output: High, Pulse: 24, Pause: 54, Repeat: -1
+	
 	OUT1 - Name Buzzer, and recomended additional settings Output: High, Pulse: 24, Pause: 54, Repeat: -1
 - Configure Misc (Last screen in HA/Konnected configuration):
 	Check ON 'Override default Home Assistant API host panel URL'
@@ -73,10 +74,31 @@ Even if it takes extra time, choose good, descriptive names for the zones now, a
 
 Good examples of descriptive names are "Bedroom window sensor", "Living room motion sensor" and "Boiler room CO detector".
 
+## Step 3 - Editing YAMLs
 
-## Step 3 - create the alarm automaton
+In this step you will be editing HA yaml files.
+  1. [configuration.yaml](configuration.yaml) - set up tts source, sensor: time_date formatting, and two alarm_control_panels (intrusion and fire/carbon monoxide)
+     tts: inform HA which source to use for talking though sonos
+	   - platform: google_translate # we will be using google
+	 sensor: activate a built in HA sensors
+       - platform: time_date # useful for formating timestamp notifications
+	 alarm_control_panel: set up two 'manual' automatons for Lovelace Cards and Automations.
+	 
+  2. [groups.yaml](groups.yaml) - set up three sensor groups and two people notification groups.
+     motion_sensors: # all motion sensor types
+     door_sensors: # all door sensor types
+     window_sensors: # all window sensor types
+  
+     people_admins: # people who will receive informational alerts (arming, disarming, etc.)
+     people_intrusion: # people who will receive INTRUSION IN PROGRESS (Alarm was triggered)
+  
+  3. [scripts.yaml](scripts.yaml) - set up sonos tts script.
+    sonos_say: # script to enable TTS sonos to function.
 
-In this step you create what Home Assistant calls a "manual alarm control panel".
+
+## Step 4 - The more you know......
+
+In this step we will clarify what Home Assistant's "manual alarm control panel" is and what it is not.
 
 Contrary to reasonable expectations, this panel only performs a fraction of an alarm panel's typical functions.
 You should think of it not as a complete control panel, but rather as a finite state machine or *automaton*. 
@@ -85,20 +107,23 @@ You should think of it not as a complete control panel, but rather as a finite s
 Specifically, the `manual` control panel automaton has:
   1. a defined collection of states: `disarmed`, `arming`, `armed_home`, `armed_away`, `pending`, `triggered`;
   2. customizable delays between one state and the other, and
-  3. user interface code that displays the panel in the dashboard and takes your input.
-
+  3. user interface (Card) code that displays the panel in the dashboard and takes your input.
 
 It is important to realize what the control panel does *not*: it does not include **triggers** and **responses**. 
-You'll need to write those yourself:
+You'll need to write those yourself by creating automations:
   1. you will define what triggers will cause a transition from a state to another, except for the arm/disarm UI inputs. The most important among them will be what triggers the alarm;
   2. you will define the responses you want when the alarm enters or leaves certain states. They determines how Home Assistant reacts when the alarm triggers, is armed, is disarmed, become pending, etc.
   
-This tutorial covers triggers and responses in the next steps. In this step, you merely create the automaton.
-You do so by editing your `configuration.yaml` file. 
+This tutorial covers triggers and responses in the next steps. 
 
 You might be surprised by my example creating not one but two panels: one for intrusion and for fire/CO (CO: carbon monoxide detection).
 
 I recommend two distinct panels because you want them to behave differently. Specifically, you may want to arm/disarm the home intrusion alarm automatically according to presence in the house, whereas fire/CO detection should always active (except for exceptional circumstances like maintenance or incident investigation).
+
+
+
+You do so by editing your `configuration.yaml` file. 
+
 
 Here are the lines I added in my [configuration.yaml](configuration.yaml):
 
