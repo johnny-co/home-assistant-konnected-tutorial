@@ -62,7 +62,12 @@ At this point you need to configure *once again* your zones inside Home Assistan
 (For the avoidance of doubt, I use the word *zone* as a synonym for sensor, as Konnected.io documentation does. This is a disjoint concept from Home Assistant's Zones, that are basically geofencing areas designed to track people's presence.)  
 
 Do it by clicking "Options" on the card associated with each board. This is a rather laborious process: you'll be presented with two pages to configure zones 1-6 and 7-12 (plus outputs), followed by as many additional pages as the zones you enabled. It is at this moment that the screenshot you took in the previous step comes in handy.
-- For consistancy in the automations below, use the following names for the alarm and buzzer:
+
+Even if it takes extra time, choose good, descriptive names for the zones now, as opposed to choosing poor names that you'll come back to revise later. Home Assistant will create entity names based on your descriptive names. Doing things right the first time will save you time in the end.
+
+Good examples of descriptive names are "Bedroom window sensor", "Living room motion sensor" and "Boiler room CO detector".
+	
+- For consistency in the automations below, use the following names for the alarm and buzzer:
 	
 	ALARM1 - Name: Siren, and recomended additional settings Output: High, Pulse: 24, Pause: 54, Repeat: -1
 	
@@ -75,10 +80,6 @@ Do it by clicking "Options" on the card associated with each board. This is a ra
 	On Override API Host URL, enter HA's static IP with Port (eg http://192.168.1.15:8123)
 	
 	* This is to avoid a bug that causes Konnected to get stuck in an infinite reboot loop if using Nabu Casa in some cases.
-
-Even if it takes extra time, choose good, descriptive names for the zones now, as opposed to choosing poor names that you'll come back to revise later. Home Assistant will create entity names based on your descriptive names. Doing things right the first time will save you time in the end.
-
-Good examples of descriptive names are "Bedroom window sensor", "Living room motion sensor" and "Boiler room CO detector".
 
 ## Step 3 - Editing YAMLs
 
