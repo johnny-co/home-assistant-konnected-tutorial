@@ -88,13 +88,13 @@ In this step you will be editing HA yaml files.
   
 	 alarm_control_panel: set up two 'manual' automatons for Lovelace Cards and Automations.
 
-     tts: inform HA which source to use for talking though sonos
-	
-    	- platform: google_translate # we will be using google
-
 	 sensor: activate a built in HA sensors
 
        - platform: time_date # useful for formating timestamp notifications
+
+     tts: inform HA which source to use for talking though sonos
+	
+    	- platform: google_translate # we will be using google
 	 
   2. [groups.yaml](groups.yaml) - set up three sensor groups and two people notification groups.
 
@@ -117,7 +117,7 @@ In this step you will be editing HA yaml files.
 
 <b>alarm_control_panel</b>
 
-In this step we will clarify what Home Assistant's "manual alarm control panel" is and what it is not.
+Let's clarify what Home Assistant's "manual alarm control panel" is and what it is not.
 
 Contrary to reasonable expectations, this panel only performs a fraction of an alarm panel's typical functions.
 You should think of it not as a complete control panel, but rather as a finite state machine or *automaton*. 
@@ -177,6 +177,27 @@ You can always come back and tweak these setting later, including setting a code
 If you choose to set up a code, the alarm card in the UI will present you with a numeric keyboard to type that code. If you do not, the UI will hide that keyboard.
 
 
+<b>sensor: - platform: time_date</b>
+
+This is simply to support automations that rely on time and date with proper formating.
+
+The portion of the [configuration.yaml](configuration.yaml) for the time_date is this:
+```
+sensor:
+  # ...
+  - platform: time_date                
+    display_options:
+      - 'time'
+      - 'date'     
+      - 'date_time'    
+      - 'date_time_utc'
+      - 'date_time_iso'
+      - 'time_date'
+      - 'time_utc'
+      - 'beat'             
+```
+  
+
 ## ## Step 5 - The more you know......about [groups.yaml](groups.yaml)
 
 Sensor Groups:
@@ -198,8 +219,22 @@ I defined two people notification groups;.
 
 2. people_intrusion: This group will receive text notifications when alarm is triggered and there is an intrusion in progress. For my use it parents and kids, GET OUT OF THE HOUSE AND CALL POLICE!
 
+## ## Step 5 - The more you know......about sonos, tts, and [scripts.yaml](scripts.yaml)
 
-## Step 6 - user interface Cards
+<b>tts: - platform: google_translate</b>
+
+Getting Sonos to actually speak was a challenge so we included the steps to get it to work. It involved setting up the Add-on Sonos, tts entry below in [configuration.yaml](configuration.yaml), and adding a script to [scripts.yaml](scripts.yaml).
+
+```
+# Text to speech
+tts:
+  - platform: google_translate
+```
+
+Next we had to find a [scripts.yaml](scripts.yaml) that worked. There are alot of examples on the internet, however each lacked the function to restore the volume level prior to the tts event. We also cleaned up the script with defined variables for use in HA/Developer Tools to test the script.
+
+
+## Step 6 - Add Cards to View tab
 
 In this step you add the alarm user interface cards to HA's Lovelace dashboards.
 
@@ -234,22 +269,6 @@ Consider that the when your triggers fire, the alarm does NOT transition to stat
 
 Similarly, when press the "arm home"  or "arm away" buttons, the alarm transitions into the `arming` state before it transitions into the respective armed status. That's designed to give you time to exit the house. I also sound the buzzer during that period.
 
-To support automations that rely on time and date, add the following entry under your `sensor:` section in your `configuration.yaml` file:
-
-```
-sensor:
-  # ...
-  - platform: time_date                
-    display_options:
-      - 'time'
-      - 'date'     
-      - 'date_time'    
-      - 'date_time_utc'
-      - 'date_time_iso'
-      - 'time_date'
-      - 'time_utc'
-      - 'beat'             
-```
   
 I list the automations in order of importance, with the names that I suggest:
 
