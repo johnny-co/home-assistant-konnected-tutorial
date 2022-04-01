@@ -23,6 +23,7 @@ There are additional add-ons and integrations that should be installed, configur
 1. Set Home Assistant to a static IP, this will help resolve an issue with a Konnected bug below.
 2. Home Assistant Cloud (Nabu Casa) or Add-ons/Duck DNS - Enables remote access to HA which is important to arming the alarm away from home.
     - How to https://www.youtube.com/watch?v=AK5E2T5tWyM
+	- or this tutorial: [this tutorial](https://github.com/scarpazza/home-assistant-cookbook/blob/main/https.md)
 3. Add-ons/Studio Code Server - Tool to easily modify configuration.yaml, scripts.yaml, groups.yaml, etc.
 4. Integrations/Sonos (Optional) - Uses Sonos TTS to give verbal warnings, eg. 'Disarm before alarm sounds', 'House Armed', etc.
 
@@ -83,7 +84,7 @@ Good examples of descriptive names are "Bedroom window sensor", "Living room mot
 
 ## Step 3 - Editing YAMLs
 
-In this step you will be editing HA yaml files.
+In this step you will be making all the edits in HA yaml files neccessary for automations and scripts to execute.
   1. [configuration.yaml](configuration.yaml) - set up tts source, sensor: time_date formatting, and two alarm_control_panels (intrusion and fire/carbon monoxide)
   
 	 alarm_control_panel: set up two 'manual' automatons for Lovelace Cards and Automations.
@@ -96,7 +97,7 @@ In this step you will be editing HA yaml files.
 	
     	- platform: google_translate # we will be using google
 	 
-  2. [groups.yaml](groups.yaml) - set up three sensor groups and two people notification groups.
+  2. [groups.yaml](groups.yaml) - set up sensor type groups, people notification groups, and media player (sonos) groups.
 
      motion_sensors: # all motion sensor types
 
@@ -105,15 +106,18 @@ In this step you will be editing HA yaml files.
      window_sensors: # all window sensor types
 
   
-     people_admins: # people who will receive informational alerts (arming, disarming, etc.)
+     people_information: # people who will receive informational alerts (arming, disarming, etc.)
 
      people_intrusion: # people who will receive INTRUSION IN PROGRESS (Alarm was triggered)
-  
-  3. [scripts.yaml](scripts.yaml) - set up sonos tts script.
+ 
 
-     sonos_say: # script to enable TTS sonos to function.
+     media_player_intrusion: media players blasting INTRUSION IN PROGRESS (Alarm was triggered)
+
+     media_player_information: media players stating informational alerts (please disarm before triggering, arming, disarming, etc.)
 
 ## Step 4 - The more you know......[configuration.yaml](configuration.yaml)
+
+This is an overview of what the changes in the [configuration.yaml](configuration.yaml) mean.
 
 <b>alarm_control_panel</b>
 
@@ -196,11 +200,34 @@ sensor:
       - 'time_utc'
       - 'beat'             
 ```
+
+
+<b>tts: - platform: google_translate</b>
+
+This entry tells home assistant to use google translate for any TTS (speak) commands. In our case it is used with Sonos.
+
+```
+tts:
+  - platform: google_translate               
+    cache: true
+    cache_dir: /tmp/tts-cache    
+    time_memory: 36000
+    base_url: https://your_domain_name.duckdns.org:8123   
+```
   
+Caveats:
+1. While the rest of the intrusion alarm is entirely self sufficient and able to work locally 
+   (including during network loss intentionally cause by burglars), this TTS function relies on 
+   access to Google. There are alternative TTS engines you can configure locally, but I haven't explored them yet.
+2. I manually created `/tmp/tts-cache` on my linux box where I run Home Assistant Core. 
+   If you run on a Home Assistant (ODROID N2+) Blue, this step is not neccessary.
+   If you run on a different platform, adapt the cache directory accordingly.
+3. You may also need to provide your external URL as a parameter to `base_url` if it is different than HA's external URL configuration when you enabled remote access to HA.
+
 
 ## ## Step 5 - The more you know......about [groups.yaml](groups.yaml)
 
-Sensor Groups:
+<b>Sensor Groups:</b>
 
 Aggregate your sensors in meaningful groups, creating as many as necessary, with special attention to groups that you don't want to trigger the alarm when you are home at night, and sensors you always want to trigger a response if the alarm is armed.
 
@@ -211,30 +238,45 @@ The main purpose of this step is to simplify trigger rules and sensor testing. T
 Even if you don't care about grouping sensors by type, it's still useful to create at least one group where they all belong: this makes it easier for you write trigger automations.
 
 
-People Groups:
+<b>People Groups:</b>
 
 I defined two people notification groups;.
 
-1. people_admins: This group will receive text notifications when alarm is armed, disarmed, etc. For my use its the parents.
+1. people_information: This group will receive text notifications when alarm is armed, disarmed, etc. For my use its the parents.
 
 2. people_intrusion: This group will receive text notifications when alarm is triggered and there is an intrusion in progress. For my use it parents and kids, GET OUT OF THE HOUSE AND CALL POLICE!
 
-## ## Step 5 - The more you know......about sonos, tts, and [scripts.yaml](scripts.yaml)
+<b>Media Player Groups:</b>
 
-<b>tts: - platform: google_translate</b>
+1. media_player_information: This group will receive text notifications when alarm is armed, disarmed, etc. For my use its the parents.
 
-Getting Sonos to actually speak was a challenge so we included the steps to get it to work. It involved setting up the Add-on Sonos, tts entry below in [configuration.yaml](configuration.yaml), and adding a script to [scripts.yaml](scripts.yaml).
-
-```
-# Text to speech
-tts:
-  - platform: google_translate
-```
-
-Next we had to find a [scripts.yaml](scripts.yaml) that worked. There are alot of examples on the internet, however each lacked the function to restore the volume level prior to the tts event. We also cleaned up the script with defined variables for use in HA/Developer Tools to test the script.
+2. media_player_intrusion: This group will receive text notifications when alarm is triggered and there is an intrusion in progress. For my use it parents and kids, GET OUT OF THE HOUSE AND CALL POLICE!
 
 
-## Step 6 - Add Cards to View tab
+## ## Step 6 - Sonos, Text to Speach, and [sonos-tts-script.yaml](sonos-tts-script.yaml)
+
+In the previous sections I mentioned text-to-speech announcements associated with alarm status transitions. At home I have Sonos smart speakers that I use those for the announcements.
+
+I play those announcements via actions relying on a [sonos-tts-script.yaml](sonos-tts-script.yaml) that is designed to pause the music being currently played on the speaker, get the announcement wavefile as rendered by a Google TTS call, play the announcement, and restore the smart speaker state (which will resume playing any music it was playing before the announcement, if any).
+
+In step 4 you already added the neccessary TTS entry to the [configuration.yaml](configuration.yaml) file. Now we need to create a script FROM HA's Configuration/Scripts screen.
+
+Click Add a Script, then edit in YAML, finally copy/paste from [sonos-tts-script.yaml](sonos-tts-script.yaml), click Save.
+
+* NOTE: This is not the same as trying to copy/paste in the scripts.yaml via Studio Code Server. The format is slightly different and HA now recommends NOT directly editing scripts.yaml
+
+To test the script, Go to Developer Tools/Services:
+
+  Select Service: Script: Sonos Say
+
+  Go To YAML Mode if not already
+
+  Click Fill Example Data
+
+  Finally Click Call Service - At this point your media player should say 'The alarm is on.' outloud.
+
+
+## Step 7 - Add Cards to View tab
 
 In this step you add the alarm user interface cards to HA's Lovelace dashboards.
 
@@ -253,13 +295,13 @@ For illustration purposes, here is my security dashboard at the end of this step
 
 
 
-## Step 7 - walkaround
+## Step 8 - walkaround
 
 Do a walkaround of the house, with your phone in your hand, explicitly triggering all sensors one by one and verifying that each of them behaves as desired.
 
 Finally, trigger the buzzers manually and trigger the siren manually, verifying they behave as desired.
 
-## Step 8 - core automations
+## Step 9 - core automations
 
 In this step you will create automations (alarm triggers and responses) that perform those functions you would expect a traditional, keypad based, 1990s, "dumb" intrusion alarm system to perform: arm, disarm, trigger, sound the siren, send you notifications.
 
@@ -359,17 +401,6 @@ tts:
     cache: true
     cache_dir: /tmp/tts-cache    
     time_memory: 36000
-    base_url: https://your_domain_name.duckdns.org:8123   
-```
-  
-Caveats:
-1. While the rest of the intrusion alarm is entirely self sufficient and able to work locally 
-   (including during network loss intentionally cause by burglars), this TTS function relies on 
-   access to Google. There are alternative TTS engines you can configure locally, but I haven't explored them yet.
-2. I manually created `/tmp/tts-cache` on my linux box where I run Home Assistant Core. 
-   If you run on a different platform, adapt the cache directory accordingly.
-3. Provide your external URL as a parameter to `base_url`.
-   You can set up external HTTPS access following [this tutorial](https://github.com/scarpazza/home-assistant-cookbook/blob/main/https.md).
   
   
   

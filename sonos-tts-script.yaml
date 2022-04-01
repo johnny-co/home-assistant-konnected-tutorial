@@ -14,7 +14,7 @@ fields:
     default: '0.5'
 sequence:
   - variables:
-      sonos_volume: "{{ states[sonos_entity].attributes.volume_level }}"
+      sonos_volume: '{{ states[sonos_entity].attributes.volume_level }}'
   - service: sonos.snapshot
     data_template:
       entity_id: '{{ sonos_entity }}'
