@@ -22,10 +22,12 @@ There are additional add-ons and integrations that should be installed, configur
 
 1. Set Home Assistant to a static IP, this will help resolve an issue with a Konnected bug below.
 2. Home Assistant Cloud (Nabu Casa) or Add-ons/Duck DNS - Enables remote access to HA which is important to arming the alarm away from home.
-    - How to https://www.youtube.com/watch?v=AK5E2T5tWyM
-	- or this tutorial: [this tutorial](https://github.com/scarpazza/home-assistant-cookbook/blob/main/https.md)
-3. Add-ons/Studio Code Server - Tool to easily modify configuration.yaml, scripts.yaml, groups.yaml, etc.
-4. Integrations/Sonos (Optional) - Uses Sonos TTS to give verbal warnings, eg. 'Disarm before alarm sounds', 'House Armed', etc.
+    - How to [YouTube](https://www.youtube.com/watch?v=AK5E2T5tWyM)
+	- or this [tutorial](https://github.com/scarpazza/home-assistant-cookbook/blob/main/https.md)
+3. Create a user for each person that will interact with the alarm, this is usually family members. 
+    - You will also want to install the HomeAssistant mobile app on each person's phone and enable ALWAYS Allow Location Access. This will allow automatic arming when everyone is away.
+4. Add-ons/Studio Code Server - Tool to easily modify configuration.yaml, scripts.yaml, groups.yaml, etc.
+5. Integrations/Sonos (Optional) - Uses Sonos TTS to give verbal warnings, eg. 'Disarm before alarm sounds', 'House Armed', etc.
 
 ## Step 1 - configure the boards
 
@@ -246,6 +248,10 @@ I defined two people notification groups;.
 
 2. people_intrusion: This group will receive text notifications when alarm is triggered and there is an intrusion in progress. For my use it parents and kids, GET OUT OF THE HOUSE AND CALL POLICE!
 
+
+
+
+
 <b>Media Player Groups:</b>
 
 1. media_player_information: This group will receive text notifications when alarm is armed, disarmed, etc. For my use its the parents.
@@ -388,21 +394,6 @@ I list the automations in order of importance, with the names that I suggest:
   * I also have a notification, a smart speaker text-to-speech announcement and a buzzer feedback. 
   * The final "turn off buzzer" action finally catches any buzzer activity started in the pending state.
 
-### Text to speech
-In the previous sections I mentioned text-to-speech announcements associated with alarm status transitions.
-At home I have Sonos smart speakers, and I use those for the announcements.
-I play those announcements via actions relying on a [Sonos TTS script](sonos-tts-script.yaml) that is designed to pause the music being currently played on the speaker, get the announcement wavefile as rendered by a Google TTS call, play the announcement, and restore the smart speaker state (which will resume playing any music it was playing before the announcement, if any).
-  
-You will need the following entries in your `configuration.yaml` file to use Google's TTS interface:
- 
-```
-tts:
-  - platform: google_translate               
-    cache: true
-    cache_dir: /tmp/tts-cache    
-    time_memory: 36000
-  
-  
   
 ## Step 8 - geofencing automations
 
