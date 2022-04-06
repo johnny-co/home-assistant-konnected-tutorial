@@ -87,7 +87,7 @@ Good examples of descriptive names are "Bedroom window sensor", "Living room mot
 
 ## Step 3 - Editing YAMLs
 
-In this step you will be making all the edits in HA yaml files neccessary for automations and scripts to execute.
+In this step you will be making all the configuration edits in HA neccessary for automations and scripts to execute.
   1. [configuration.yaml](configuration.yaml) - set up tts source, sensor: time_date formatting, and two alarm_control_panels (intrusion and fire/carbon monoxide)
   
 	 alarm_control_panel: set up two 'manual' automatons for Lovelace Cards and Automations.
@@ -99,17 +99,16 @@ In this step you will be making all the edits in HA yaml files neccessary for au
      tts: inform HA which source to use for talking though sonos
 	
     	- platform: google_translate # we will be using google
-	
-     input_select: : set up alarm_mode to determine what happens with the alarm is triggered
-	 
+		 
 	 notify: Send group text notifications to certain individuals
 	   - name: Intrusion Triggered # Tell everyone you are being robbed
 	   
        - name: Intrusion Status # Notify head of households of alarm status changes
 
 	
-  2. [groups.yaml](groups.yaml) - set up sensor type groups, people notification groups, and media player (sonos) groups.
+  2. Configuration / Helpers - set up groups and dropdowns (input_selects).
 
+     <b>groups</b> - set up sensor groups, people notification groups, and media player (sonos) groups.
      motion_sensors: # all motion sensor types
 
      door_sensors: # all door sensor types
@@ -125,6 +124,11 @@ In this step you will be making all the edits in HA yaml files neccessary for au
      media_player_intrusion: media players blasting INTRUSION IN PROGRESS (Alarm was triggered)
 
      media_player_information: media players stating informational alerts (please disarm before triggering, arming, disarming, etc.)
+
+     <b>dropdowns</b> formerly known as input_select
+
+     alarm_mode: : set up alarm_mode to determine what happens with the alarm is triggered
+
 
 ## Step 4 - The more you know......[configuration.yaml](configuration.yaml)
 

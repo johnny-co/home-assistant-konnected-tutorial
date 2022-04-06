@@ -1,19 +1,49 @@
-alias: 'Intrusion: trigger response - Siren - LEAVE ON EXCEPT WHEN TESTING'
-description: 'This automation is the response to an alarm trigger - what you want to happen when an intrusion is in progress'
+alias: 'Intrusion: Trigger response'
+description: >-
+  This automation is the response to an alarm trigger - what you want to happen
+  when an intrusion is in progress.
 trigger:
   - platform: state
     entity_id: alarm_control_panel.home_alarm
     to: triggered
 condition: []
 action:
-  - service: notify.notify
+  - service: notify.intrusion_triggered
     data:
-      title: Intrusion in progress!
       message: Alarm triggered at {{ states('sensor.date_time') }}
+      title: LH-Intrusion in progress!
       data:
         tag: intrusion-triggered
-  - type: turn_on
-    device_id: fd74f7383b86bbd584f1f4da68e544f7
-    entity_id: switch.siren
-    domain: switch
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: input_select.alarm_mode
+            state: Buzzer
+        sequence:
+          - service: switch.turn_on
+            data: {}
+            target:
+              entity_id: switch.buzzer
+      - conditions:
+          - condition: state
+            entity_id: input_select.alarm_mode
+            state: Siren
+        sequence:
+          - service: switch.turn_on
+            data: {}
+            target:
+              entity_id: switch.siren
+      - conditions:
+          - condition: state
+            entity_id: input_select.alarm_mode
+            state: Media Players
+        sequence:
+          - service: media_player.play_media
+            target:
+              entity_id: media_player.sonos_trelawney
+            data:
+              media_content_type: playlist
+              media_content_id: spotify:playlist:Intrusion
+              enqueue: true
+    default: []
 mode: single
