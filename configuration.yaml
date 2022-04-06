@@ -22,7 +22,16 @@ sensor:
       - "time_date"
       - "time_utc"
       - "beat"
-
+# Select options for alarm sounds 
+input_select:
+  alarm_mode:
+    name: Alarm Mode
+    options:
+      - "off"
+      - "buzzer"
+      - "siren"
+    initial: "off"
+    icon: "mdi:security"
 # Konnected.io Alarm Panel Settings
 alarm_control_panel:
   - platform: manual

@@ -24,10 +24,11 @@ There are additional add-ons and integrations that should be installed, configur
 2. Home Assistant Cloud (Nabu Casa) or Add-ons/Duck DNS - Enables remote access to HA which is important to arming the alarm away from home.
     - How to [YouTube](https://www.youtube.com/watch?v=AK5E2T5tWyM)
 	- or this [tutorial](https://github.com/scarpazza/home-assistant-cookbook/blob/main/https.md)
-3. Create a user for each person that will interact with the alarm, this is usually family members. 
+3. Create a user for each person that will interact with the alarm, this is usually members in the household. 
     - You will also want to install the HomeAssistant mobile app on each person's phone and enable ALWAYS Allow Location Access. This will allow automatic arming when everyone is away.
 4. Add-ons/Studio Code Server - Tool to easily modify configuration.yaml, scripts.yaml, groups.yaml, etc.
-5. Integrations/Sonos (Optional) - Uses Sonos TTS to give verbal warnings, eg. 'Disarm before alarm sounds', 'House Armed', etc.
+5. Integrations/Sonos (Optional) - Uses Sonos TTS to give verbal warnings, eg. 'Disarm before alarm sounds', 'House Armed', etc. We will help you set up TTS in this guide.
+    - Also create a new playlist named 'Intrusion' for sonos to play (loudly) when alarm is triggered.
 
 ## Step 1 - configure the boards
 
@@ -98,7 +99,15 @@ In this step you will be making all the edits in HA yaml files neccessary for au
      tts: inform HA which source to use for talking though sonos
 	
     	- platform: google_translate # we will be using google
+	
+     input_select: : set up alarm_mode to determine what happens with the alarm is triggered
 	 
+	 notify: Send group text notifications to certain individuals
+	   - name: Intrusion Triggered # Tell everyone you are being robbed
+	   
+       - name: Intrusion Status # Notify head of households of alarm status changes
+
+	
   2. [groups.yaml](groups.yaml) - set up sensor type groups, people notification groups, and media player (sonos) groups.
 
      motion_sensors: # all motion sensor types
@@ -227,6 +236,8 @@ Caveats:
 3. You may also need to provide your external URL as a parameter to `base_url` if it is different than HA's external URL configuration when you enabled remote access to HA.
 
 
+
+
 ## ## Step 5 - The more you know......about [groups.yaml](groups.yaml)
 
 <b>Sensor Groups:</b>
@@ -250,8 +261,6 @@ I defined two people notification groups;.
 
 
 
-
-
 <b>Media Player Groups:</b>
 
 1. media_player_information: This group will receive text notifications when alarm is armed, disarmed, etc. For my use its the parents.
@@ -259,7 +268,29 @@ I defined two people notification groups;.
 2. media_player_intrusion: This group will receive text notifications when alarm is triggered and there is an intrusion in progress. For my use it parents and kids, GET OUT OF THE HOUSE AND CALL POLICE!
 
 
-## ## Step 6 - Sonos, Text to Speach, and [sonos-tts-script.yaml](sonos-tts-script.yaml)
+## ## Step 6 - We all need help sometimes.
+
+In this step we will create an input_select the preferred way via the user interface at Configuration -> Helpers. Click the add button and then choose the Dropdown option.
+
+"name": "Alarm Mode",
+"icon": "mdi:alarm-light",
+"options": [
+	"Silent",
+	"Buzzer",
+	"Siren"
+]
+
+This will create an entity id of input_select.alarm_mode
+
+Silent - Only text notifications go out when alarm is triggered.
+Buzzer - Generally only used for testing purposes.
+Siren - The loud siren will sound when alarm is triggered.
+
+I personally always leave my alarm on silent mode. If the alarm is triggered, and there is an actual intrusion I will hit the PANIC button.
+
+* Note if you are curious where this information is stored. You can find it via Studio Code Server, open folder /config/.storage, the file is input_select.
+
+## ## Step 7 - Sonos, Text to Speach, and [sonos-tts-script.yaml](sonos-tts-script.yaml)
 
 In the previous sections I mentioned text-to-speech announcements associated with alarm status transitions. At home I have Sonos smart speakers that I use those for the announcements.
 
@@ -282,7 +313,7 @@ To test the script, Go to Developer Tools/Services:
   Finally Click Call Service - At this point your media player should say 'The alarm is on.' outloud.
 
 
-## Step 7 - Add Cards to View tab
+## Step 8 - Add Cards to View tab
 
 In this step you add the alarm user interface cards to HA's Lovelace dashboards.
 
@@ -301,13 +332,13 @@ For illustration purposes, here is my security dashboard at the end of this step
 
 
 
-## Step 8 - walkaround
+## Step 9 - walkaround
 
 Do a walkaround of the house, with your phone in your hand, explicitly triggering all sensors one by one and verifying that each of them behaves as desired.
 
 Finally, trigger the buzzers manually and trigger the siren manually, verifying they behave as desired.
 
-## Step 9 - core automations
+## Step 10 - core automations
 
 In this step you will create automations (alarm triggers and responses) that perform those functions you would expect a traditional, keypad based, 1990s, "dumb" intrusion alarm system to perform: arm, disarm, trigger, sound the siren, send you notifications.
 
@@ -395,7 +426,7 @@ I list the automations in order of importance, with the names that I suggest:
   * The final "turn off buzzer" action finally catches any buzzer activity started in the pending state.
 
   
-## Step 8 - geofencing automations
+## Step 11 - geofencing automations
 
 You should now consider smarter automations, primarily alarm geofencing, that Home Assistant can perform thanks to its app running on a GPS-enabled mobile phone. Geofencing is the most prominent feature that the traditional 1990s systems would not offer. 
   
@@ -464,7 +495,7 @@ Once your family group is established, I recommend the following automations:
   * You need to separate handlers, one for `ARM_HOME` and one for `ARM_AWAY`.
     See the YAML source file for details.
   
-## Step 9 - repeat for the fire/CO alarm
+## Step 12 - repeat for the fire/CO alarm
 
 Repeat Steps 4...8 for the fire and carbon monoxide alarm system.
 
